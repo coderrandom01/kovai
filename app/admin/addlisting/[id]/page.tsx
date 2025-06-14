@@ -43,6 +43,11 @@ export default function EditListingPage({ params }: Props) {
 
   // Fetch existing listing if editing
   useEffect(() => {
+    console.log("AWS creds:", {
+  region: process.env.AWS_REGION,
+  bucket: process.env.AWS_BUCKET_NAME,
+  keyId: process.env.AWS_ACCESS_KEY_ID,
+});
     if (!id || id === "new"){
         setLoading(false)
         return;
