@@ -111,27 +111,61 @@ export default function EditListingPage({ params }: Props) {
     return fileUrl;
   }
 
-  async function handleFiles(e: React.ChangeEvent<HTMLInputElement>) {
-    const files = e.target.files;
-    if (!files?.length) return;
+  // async function handleFiles(e: React.ChangeEvent<HTMLInputElement>) {
+  //   const files = e.target.files;
+  //   if (!files?.length) return;
 
-    setUploading(true);
-    try {
-      const urls: string[] = [];
-      for (const file of Array.from(files)) {
-        urls.push(await putToS3(file));
-      }
-      setImageUrls(prev => [...prev, ...urls]);
+  //   setUploading(true);
+  //   try {
+  //     const urls: string[] = [];
+  //     for (const file of Array.from(files)) {
+  //       urls.push(await putToS3(file));
+  //     }
+  //     setImageUrls(prev => [...prev, ...urls]);
+  //     setFormData(prev => ({
+  //       ...prev,
+  //       images: [...prev.images, ...urls],
+  //     }));
+  //   } finally {
+  //     setUploading(false);
+  //     e.target.value = '';
+  //   }
+  // }
+  async function uploadImage(file: File) {
+  const form = new FormData();
+  form.append('file', file);
+
+  const res = await fetch('/api/upload', {
+    method: 'POST',
+    body: form,
+  });
+
+  const { url } = await res.json();
+  return url;
+}
+
+  async function uploadMultiple(files: File[]) {
+  const urls: string[] = [];
+
+  for (const file of files) {
+    const url = await uploadImage(file);
+    urls.push(url);
+  }
+
+  return urls;
+}
+
+const handleFiles = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files) return;
+    const files = Array.from(e.target.files);
+    const urls = await uploadMultiple(files);
+    setImageUrls(prev => [...prev, ...urls]);
       setFormData(prev => ({
         ...prev,
         images: [...prev.images, ...urls],
       }));
-    } finally {
-      setUploading(false);
-      e.target.value = '';
-    }
-  }
-
+    console.log('Uploaded image URLs:', urls);
+  };
   function removeImage(url: string) {
     setImageUrls(prev => prev.filter(u => u !== url));
     setFormData(prev => ({
