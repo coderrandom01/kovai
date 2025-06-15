@@ -71,7 +71,7 @@ const images = [
       {/* dark overlay + headline */}
       <div className= {`${parisienne.className} absolute inset-0 bg-black/40 flex items-center justify-center`}>
   <motion.h1
-  className= "text-white text-4xl md:text-5xl font-bold drop-shadow-lg"
+  className= "text-white text-3xl md:text-5xl sm:text-2xl font-bold drop-shadow-lg"
   
   initial={{ opacity: 0, y: 20 }}
   animate={{
@@ -198,7 +198,7 @@ function ListingCard({ listing }: { listing: any }) {
         )}
       </div>
       <div className="flex items-center gap-2 mb-4">
-        <label htmlFor={`count-${listing._id}`} className="font-medium">
+        <label htmlFor={`count-${listing._id}`} className="font-medium text-black">
           Quantity:
         </label>
         <input
@@ -208,7 +208,7 @@ function ListingCard({ listing }: { listing: any }) {
           max={99}
           value={count}
           onChange={(e) => setCount(Number(e.target.value))}
-          className="w-16 border rounded px-2 py-1"
+          className="w-16 border rounded px-2 py-1 text-black"
         />
       </div>
 

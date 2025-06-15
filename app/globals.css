@@ -26,8 +26,12 @@ body {
     rgb(var(--background-start-rgb));
 }
  .input {
-   @apply w-full rounded border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand;
- }
+  @apply w-full mt-1 px-3 py-2 border rounded focus:outline-none focus:ring;
+  @apply bg-white text-black placeholder-gray-500;
+
+  @apply dark:bg-gray-700 dark:text-white dark:placeholder-gray-300 dark:border-gray-600;
+}
+ 
 
  .btn_display_left{
   right: 11px;

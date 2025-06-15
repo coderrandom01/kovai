@@ -214,7 +214,7 @@ const handleFiles = async (e: React.ChangeEvent<HTMLInputElement>) => {
 
       <form onSubmit={handleSubmit} className="space-y-6">
         <div>
-          <label className="block font-medium">Title</label>
+          <label className="block font-medium text-black">Title</label>
           <input
             name="title"
             value={formData.title}
@@ -224,7 +224,7 @@ const handleFiles = async (e: React.ChangeEvent<HTMLInputElement>) => {
         </div>
 
         <div>
-          <label className="block font-medium">Description</label>
+          <label className="block font-medium text-black">Description</label>
           <textarea
             name="description"
             value={formData.description}
@@ -234,7 +234,7 @@ const handleFiles = async (e: React.ChangeEvent<HTMLInputElement>) => {
         </div>
 
         <div>
-          <label className="block font-medium">Price</label>
+          <label className="block font-medium text-black">Price</label>
           <input
             type="number"
             step="0.01"
@@ -246,7 +246,7 @@ const handleFiles = async (e: React.ChangeEvent<HTMLInputElement>) => {
         </div>
 
         <div>
-          <label className="block font-medium">Discount (%)</label>
+          <label className="block font-medium text-black">Discount (%)</label>
           <input
             type="number"
             step="0.01"
@@ -258,7 +258,7 @@ const handleFiles = async (e: React.ChangeEvent<HTMLInputElement>) => {
         </div>
 
         <div>
-          <label className="block font-medium">Discount Price</label>
+          <label className="block font-medium text-black">Discount Price</label>
           <input
             type="number"
             value={formData.discount_price}
@@ -268,7 +268,7 @@ const handleFiles = async (e: React.ChangeEvent<HTMLInputElement>) => {
         </div>
 
         <div>
-          <label className="block font-medium">Display Price (after discount)</label>
+          <label className="block font-medium text-black">Display Price (after discount)</label>
           <input
             type="number"
             value={formData.display_price}
@@ -285,7 +285,7 @@ const handleFiles = async (e: React.ChangeEvent<HTMLInputElement>) => {
             onChange={handleChange}
             className="h-4 w-4"
           />
-          <label className="block font-medium">Top Selling</label>
+          <label className="block font-medium text-black">Top Selling</label>
         </div>
 
         <div className="flex items-center gap-2">
@@ -296,7 +296,7 @@ const handleFiles = async (e: React.ChangeEvent<HTMLInputElement>) => {
             onChange={handleChange}
             className="h-4 w-4"
           />
-          <label className="block font-medium">Clearance Sale</label>
+          <label className="block font-medium text-black">Clearance Sale</label>
         </div>
         <div className="flex items-center gap-2">
           <input
@@ -306,14 +306,14 @@ const handleFiles = async (e: React.ChangeEvent<HTMLInputElement>) => {
             onChange={handleChange}
             className="h-4 w-4"
           />
-          <label className="block font-medium">Status</label>
+          <label className="block font-medium text-black">Status</label>
         </div>
 
         {/* Image uploader */}
         <div>
           <label className="block font-medium mb-1">
             Upload Images
-            {uploading && <span className="ml-2 text-sm text-gray-500">(uploading…)</span>}
+            {uploading && <span className="ml-2 text-sm  text-black">(uploading…)</span>}
           </label>
           <input
             type="file"
