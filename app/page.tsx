@@ -13,7 +13,7 @@ const parisienne = Parisienne({
 export default function LandingPage() {
   const [listings, setListings] = useState([]);
   const [index, setIndex] = useState(0);
-
+  const [loading, setLoading] = useState<boolean>(true)
 const images = [
     "https://kovai-guppies-images.s3.eu-north-1.amazonaws.com/u-Xq2bmK-PaDNbH1ZArbR.jpg",
     "https://kovai-guppies-images.s3.eu-north-1.amazonaws.com/h5W5D1HGNaRSnKJRt-Au4.jpg",
@@ -27,10 +27,12 @@ const images = [
     return () => clearInterval(id);
   }, []);
   useEffect(() => {
+    // setLoading(false)
     const fetchListings = async () => {
       const res = await fetch('/api/listings');
       const data = await res.json();
       setListings(data);
+      setLoading(false)
     };
 
     fetchListings();
@@ -95,11 +97,25 @@ const images = [
       <section className="px-6 py-10 bg-sky-50">
         <h2 className="text-3xl font-bold mb-6 text-center text-sky-500">Featured Products</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-          {listings.map((listing: any) => (
-            <ListingCard key={listing._id} listing={listing} />
-          ))}
+          {loading
+    ? Array.from({ length: 3 }).map((_, i) => <ListingCardSkeleton key={i} />)
+    : listings.map((listing: any) => (
+        <ListingCard key={listing._id} listing={listing}  />
+      ))}
         </div>
       </section>
+    </div>
+  );
+}
+
+function ListingCardSkeleton() {
+  return (
+    <div className="bg-white rounded-2xl shadow-xl p-5 animate-pulse border border-sky-100">
+      <div className="w-full h-52 bg-gray-200 rounded-lg mb-4"></div>
+      <div className="h-6 bg-gray-200 rounded w-3/4 mb-2"></div>
+      <div className="h-4 bg-gray-200 rounded w-1/2 mb-2"></div>
+      <div className="h-4 bg-gray-200 rounded w-2/3 mb-4"></div>
+      <div className="h-10 bg-gray-300 rounded w-full"></div>
     </div>
   );
 }
