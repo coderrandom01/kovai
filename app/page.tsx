@@ -126,7 +126,7 @@ function ListingCard({ listing }: { listing: any }) {
     e.preventDefault();
     if (!mobile) return alert('Please enter your mobile number');
     // Redirect to WhatsApp chat
-    window.open(createWhatsAppUrl(), '_blank');
+window.location.href = createWhatsAppUrl();
     setShowModal(false);
     setCount(0);
     setMobile('');
