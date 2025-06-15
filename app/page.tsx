@@ -113,7 +113,7 @@ function ListingCard({ listing }: { listing: any }) {
   const [mobile, setMobile] = useState('');
   const nextImage = () => setIndex((index + 1) % images.length);
   const prevImage = () => setIndex((index - 1 + images.length) % images.length);
-   const businessWhatsAppNumber = '8883670422'; // example: India number
+   const businessWhatsAppNumber = '918883670422'; // example: India number
 
   // Create WhatsApp URL with message
   const createWhatsAppUrl = () => {
@@ -226,21 +226,21 @@ function ListingCard({ listing }: { listing: any }) {
      {showModal && (
         <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
           <div className="bg-white rounded p-6 max-w-sm w-full shadow-lg">
-            <h4 className="text-xl mb-4 font-semibold">Enter your mobile number</h4>
+            <h4 className="text-xl mb-4 font-semibold text-black">Enter your mobile number</h4>
             <form onSubmit={handleSubmit} className="space-y-4">
               <input
                 type="tel"
                 value={mobile}
                 onChange={(e) => setMobile(e.target.value)}
                 placeholder="Mobile Number"
-                className="w-full border px-3 py-2 rounded"
+                className="w-full border px-3 py-2 rounded text-black"
                 required
               />
               <div className="flex justify-end gap-4">
                 <button
                   type="button"
                   onClick={() => setShowModal(false)}
-                  className="px-4 py-2 rounded border"
+                  className="px-4 py-2 rounded border text-black"
                 >
                   Cancel
                 </button>
