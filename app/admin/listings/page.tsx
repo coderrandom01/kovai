@@ -27,15 +27,15 @@ export default function ListingsPage() {
     <section className="max-w-5xl mx-auto p-4">
       <h1 className="text-2xl font-bold mb-4">All Listings</h1>
 
-      <table className="w-full border border-gray-300 text-sm">
+      <table className="w-full border border-black text-sm">
         <thead className="bg-gray-100">
           <tr>
-            <th className="p-2 border">Title</th>
-            <th className="p-2 border">Price</th>
-            <th className="p-2 border">Discount</th>
-            <th className="p-2 border">Display Price</th>
-            <th className="p-2 border">Top Selling</th>
-            <th className="p-2 border">Actions</th>
+            <th className="p-2 border text-black">Title</th>
+            <th className="p-2 border text-black">Price</th>
+            <th className="p-2 border text-black">Discount</th>
+            <th className="p-2 border text-black ">Display Price</th>
+            <th className="p-2 border text-black">Top Selling</th>
+            <th className="p-2 border text-black">Actions</th>
           </tr>
         </thead>
         <tbody>

@@ -96,7 +96,7 @@ const images = [
       {/* Product Listings */}
       <section className="px-6 py-10 bg-sky-50">
         <h2 className="text-3xl font-bold mb-6 text-center text-sky-500">Featured Products</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {loading
     ? Array.from({ length: 3 }).map((_, i) => <ListingCardSkeleton key={i} />)
     : listings.map((listing: any) => (
@@ -124,7 +124,7 @@ function ListingCardSkeleton() {
 function ListingCard({ listing }: { listing: any }) {
   const [index, setIndex] = useState(0);
   const images = listing.images || [];
-    const [count, setCount] = useState(0);
+    const [count, setCount] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [mobile, setMobile] = useState('');
   const nextImage = () => setIndex((index + 1) % images.length);
@@ -133,18 +133,18 @@ function ListingCard({ listing }: { listing: any }) {
 
   // Create WhatsApp URL with message
   const createWhatsAppUrl = () => {
-    const msg = `Hello, I want to buy ${count} unit(s) of *${listing.title}* priced at ₹${listing.display_price}.\nMy mobile number is: ${mobile}`;
+    const msg = `Hello, I want to buy ${count} unit(s) of *${listing.title}* priced at ₹${listing.display_price}.\nMy Name is: ${mobile}`;
     return `https://wa.me/${businessWhatsAppNumber}?text=${encodeURIComponent(msg)}`;
   };
 
   // Handle submit from modal
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!mobile) return alert('Please enter your mobile number');
+    if (!mobile) return alert('Please enter your Name');
     // Redirect to WhatsApp chat
 window.location.href = createWhatsAppUrl();
     setShowModal(false);
-    setCount(0);
+    setCount("");
     setMobile('');
   };
   return (
@@ -198,17 +198,17 @@ window.location.href = createWhatsAppUrl();
         <h3 className="text-xl font-bold text-sky-500">{listing.title}</h3>
         {/* <p className="text-sm text-gray-600 line-clamp-2">{listing.description}</p> */}
         <div className="text-sm text-gray-700">
-          <p className='text-lg font-bold line-through'>Price: ₹{listing.price}</p>
-          <p className="text-red-600 font-bold">Discount: ₹{listing.discount_price}</p>
-          <p className="text-sky-500 font-semibold text-xl">Final Price: ₹{listing.display_price}</p>
+          <p className='text-lg font-bold line-through mt-2'>Price: ₹{listing.price}</p>
+          <p className="text-red-600 font-bold mt-2">Discount: ₹{listing.discount_price}</p>
+          <p className="text-sky-500 font-semibold text-xl mt-2">Final Price: ₹{listing.display_price}</p>
         </div>
         {listing.top_selling && (
-          <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full inline-block">
+          <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full inline-block mt-2">
             Top Selling
           </span>
         )}
         {listing.clearance_sale && (
-          <span className="text-xs bg-red-100 text-red-700 px-2 py-0.5 rounded-full inline-block">
+          <span className="text-xs bg-red-100 text-red-700 px-2 py-0.5 rounded-full inline-block mt-2">
             Clearance Sale
           </span>
         )}
@@ -222,18 +222,19 @@ window.location.href = createWhatsAppUrl();
           type="number"
           min={0}
           max={99}
+          placeholder='0'
           value={count}
-          onChange={(e) => setCount(Number(e.target.value))}
+          onChange={(e) => setCount((e.target.value))}
           className="w-16 border rounded px-2 py-1 text-black"
         />
       </div>
 
       {/* Buy button */}
       <button
-        disabled={count <= 0}
+        disabled={Number(count) <= 0}
         onClick={() => setShowModal(true)}
         className={`w-full py-2 rounded text-white ${
-          count > 0 ? 'bg-sky-500 hover:bg-sky-600' : 'bg-gray-400 cursor-not-allowed'
+          Number(count) > 0 ? 'bg-sky-500 hover:bg-sky-600' : 'bg-gray-400 cursor-not-allowed'
         }`}
       >
         Buy
@@ -242,13 +243,13 @@ window.location.href = createWhatsAppUrl();
      {showModal && (
         <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
           <div className="bg-white rounded p-6 max-w-sm w-full shadow-lg">
-            <h4 className="text-xl mb-4 font-semibold text-black">Enter your mobile number</h4>
+            <h4 className="text-xl mb-4 font-semibold text-black">Enter your Name</h4>
             <form onSubmit={handleSubmit} className="space-y-4">
               <input
                 type="tel"
                 value={mobile}
                 onChange={(e) => setMobile(e.target.value)}
-                placeholder="Mobile Number"
+                placeholder="Name"
                 className="w-full border px-3 py-2 rounded text-black"
                 required
               />

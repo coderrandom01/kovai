@@ -6,10 +6,10 @@ import { useRouter, usePathname } from 'next/navigation';
 interface ListingFormData {
   title: string;
   description: string;
-  price: number;
-  discount_percent: number;
-  discount_price: number;
-  display_price: number;
+  price: string;
+  discount_percent: string;
+  discount_price: string;
+  display_price: string;
   top_selling: boolean;
   clearance_sale: boolean;
   images: string[];
@@ -27,10 +27,10 @@ export default function EditListingPage({ params }: Props) {
   const [formData, setFormData] = useState<ListingFormData>({
     title: '',
     description: '',
-    price: 0,
-    discount_percent: 0,
-    discount_price: 0,
-    display_price: 0,
+    price: "",
+    discount_percent: "",
+    discount_price: "",
+    display_price: "",
     top_selling: false,
     clearance_sale: false,
     images: [],
@@ -60,7 +60,7 @@ export default function EditListingPage({ params }: Props) {
           title: data.title,
           description: data.description,
           price: data.price,
-          discount_percent: 0, // you can calculate from price & discount_price if needed
+          discount_percent: "", // you can calculate from price & discount_price if needed
           discount_price: data.discount_price,
           display_price: data.display_price,
           top_selling: data.top_selling,
@@ -75,13 +75,13 @@ export default function EditListingPage({ params }: Props) {
 
   // Calculate discount whenever price or discount_percent changes
   useEffect(() => {
-    const discount = +(formData.price * (formData.discount_percent || 0) / 100).toFixed(2);
-    const display = +(formData.price - discount).toFixed(2);
+    const discount = +(Number(formData.price) * (Number(formData.discount_percent) || 0) / 100).toFixed(2);
+    const display = +(Number(formData.price) - Number(discount)).toFixed(2);
 
     setFormData(prev => ({
       ...prev,
-      discount_price: discount,
-      display_price: display,
+      discount_price: String(discount),
+      display_price: String(display),
     }));
   }, [formData.price, formData.discount_percent]);
 
@@ -176,7 +176,21 @@ const handleFiles = async (e: React.ChangeEvent<HTMLInputElement>) => {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+  if (!formData.title.trim()) {
+    return alert('Title is required.');
+  }
 
+  if (!formData.description.trim()) {
+    return alert('Description is required.');
+  }
+
+  if (!imageUrls || imageUrls.length === 0) {
+    return alert('Please upload at least one image.');
+  }
+
+  if (!formData.price || isNaN(Number(formData.price)) || Number(formData.price) <= 0) {
+    return alert('Valid price is required.');
+  }
     const payload = {
       title:           formData.title,
       description:     formData.description,
@@ -343,7 +357,7 @@ const handleFiles = async (e: React.ChangeEvent<HTMLInputElement>) => {
         <button
           type="submit"
           className="bg-sky-500 hover:bg-sky-600 text-white px-4 py-2 rounded disabled:opacity-50"
-          disabled={uploading || imageUrls.length === 0}
+          // disabled={uploading || imageUrls.length === 0 && formData.price !== 0 || !formData.price && formData.title.length > 0}
         >
          {id ? "Update" : "Submit"}
         </button>
