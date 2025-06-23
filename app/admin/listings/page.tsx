@@ -1,9 +1,11 @@
 'use client';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 export default function ListingsPage() {
   const [listings, setListings] = useState([]);
+  const router = useRouter();
 
   async function fetchListings() {
     const res = await fetch('/api/listings');
@@ -25,7 +27,15 @@ export default function ListingsPage() {
 
   return (
     <section className="max-w-5xl mx-auto p-4">
+      <div className = "flex justify-between align-middle mb-5">
       <h1 className="text-2xl font-bold mb-4">All Listings</h1>
+      <button
+          className="bg-sky-500 hover:bg-sky-600 text-white px-4 py-2 rounded" onClick = {() => router.push('/admin/addlisting/new')}
+          // disabled={uploading || imageUrls.length === 0 && formData.price !== 0 || !formData.price && formData.title.length > 0}
+        >
+        <Link href={"/admin/addlisting/new"}></Link> Add Listing
+        </button>
+      </div>
 
       <table className="w-full border border-black text-sm">
         <thead className="bg-gray-100">

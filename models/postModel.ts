@@ -1,5 +1,4 @@
-import { Schema, model, models } from 'mongoose';
-
+import mongoose, { Schema, model, models } from 'mongoose';
 const ListingSchema = new Schema({
   title:           { type: String, required: true },
   description:     { type: String },
@@ -9,7 +8,11 @@ const ListingSchema = new Schema({
   discount_price:  Number,
   top_selling:     Boolean,
   clearance_sale:  Boolean,
-  status: Boolean
-});
+  status: Boolean,
+category: {
+  type: mongoose.Schema.Types.ObjectId,
+  ref: 'Category',
+  required: true,
+}});
 
 export default models.Listing || model('Listing', ListingSchema);

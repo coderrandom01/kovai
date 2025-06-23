@@ -20,7 +20,6 @@ export async function GET() {
   });
 
   const uploadUrl = await getSignedUrl(s3, command, { expiresIn: 60 });
-console.log("uploadUrluploadUrl",uploadUrl);
   return Response.json({
     uploadUrl,
     fileUrl: `https://${process.env.AWS_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/${fileName}`,

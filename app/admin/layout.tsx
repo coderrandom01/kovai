@@ -32,7 +32,7 @@ function Sidebar() {
     <aside className="hidden md:flex md:w-64 bg-brand text-white flex-col p-4 space-y-4">
       <h2 className="text-xl font-bold mb-6"><Link href={'/'}>Kovai Guppies</Link></h2>
       <nav className="flex flex-col gap-2">
-        <Link href="/admin/dashboard" className="hover:bg-white/10 rounded px-3 py-2">Dashboard</Link>
+        <Link href="/admin/categories" className="hover:bg-white/10 rounded px-3 py-2">Categories</Link>
         <Link href="/admin/listings" className="hover:bg-white/10 rounded px-3 py-2">All Listings</Link>
         <Link href="/admin/addlisting/new" className="hover:bg-white/10 rounded px-3 py-2">Add Listing</Link>
       </nav>
@@ -55,7 +55,7 @@ function MobileHeader() {
 
       {open && (
         <div className="md:hidden bg-brand text-white flex flex-col p-4 space-y-2">
-          <Link href="/admin/dashboard" className="hover:bg-white/10 rounded px-3 py-2">Dashboard</Link>
+          <Link href="/admin/categories" className="hover:bg-white/10 rounded px-3 py-2">Categories</Link>
           <Link href="/admin/listings" className="hover:bg-white/10 rounded px-3 py-2">All Listings</Link>
           <Link href="/admin/addlisting/new" className="hover:bg-white/10 rounded px-3 py-2">Add Listing</Link>
         </div>

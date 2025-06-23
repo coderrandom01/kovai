@@ -12,6 +12,8 @@ const schema = z.object({
   discount_price: z.number().optional(),
   top_selling: z.boolean().optional(),
   clearance_sale: z.boolean().optional(),
+  status: z.boolean().optional(),
+  category: z.string(),
 });
 
 // POST: Create a new listing
@@ -19,7 +21,6 @@ export async function POST(req: Request) {
   try {
     const body = await req.json();
     const data = schema.parse(body);
-
     await connectDB();
     const doc = await Listing.create(data);
 

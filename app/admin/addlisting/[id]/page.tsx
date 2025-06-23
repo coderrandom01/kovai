@@ -14,6 +14,7 @@ interface ListingFormData {
   clearance_sale: boolean;
   images: string[];
   status: boolean
+  category : any
 }
 
 interface Props {
@@ -23,6 +24,7 @@ interface Props {
 export default function EditListingPage({ params }: Props) {
   const id = params?.id;
   const router = useRouter();
+  const [categories, setCategories] = useState([]);
 
   const [formData, setFormData] = useState<ListingFormData>({
     title: '',
@@ -34,20 +36,20 @@ export default function EditListingPage({ params }: Props) {
     top_selling: false,
     clearance_sale: false,
     images: [],
-    status : true
+    status : true,
+    category : ''
   });
 
   const [imageUrls, setImageUrls] = useState<string[]>([]);
   const [uploading, setUploading] = useState(false);
   const [loading, setLoading] = useState(!!id);
-
+  useEffect(() => {
+    fetch('/api/categories')
+      .then(res => res.json())
+      .then(setCategories);
+  }, []);
   // Fetch existing listing if editing
   useEffect(() => {
-    console.log("AWS creds:", {
-  region: process.env.AWS_REGION,
-  bucket: process.env.AWS_BUCKET_NAME,
-  keyId: process.env.AWS_ACCESS_KEY_ID,
-});
     if (!id || id === "new"){
         setLoading(false)
         return;
@@ -66,7 +68,8 @@ export default function EditListingPage({ params }: Props) {
           top_selling: data.top_selling,
           clearance_sale: data.clearance_sale,
           images: data.images || [],
-          status: data.status
+          status: data.status,
+          category : data.category
         });
         setImageUrls(data.images || []);
       })
@@ -195,12 +198,13 @@ const handleFiles = async (e: React.ChangeEvent<HTMLInputElement>) => {
       title:           formData.title,
       description:     formData.description,
       images:          imageUrls,
-      price:           formData.price,
-      display_price:   formData.display_price,
-      discount_price:  formData.discount_price,
+      price:           Number(formData.price),
+      display_price:   Number(formData.display_price),
+      discount_price:  Number(formData.discount_price),
       top_selling:     formData.top_selling,
       clearance_sale:  formData.clearance_sale,
-      status : formData.status
+      status : formData.status,
+      category : formData.category
     };
 
     const method = id && id !== 'new' ? 'PUT' : 'POST';
@@ -211,7 +215,7 @@ const handleFiles = async (e: React.ChangeEvent<HTMLInputElement>) => {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
     });
-
+    console.log("resresresres",res);
     if (res.ok) {
       alert(id ? 'Listing updated!' : 'Listing created!');
       router.push('/admin/listings'); // or wherever you want to go after
@@ -352,6 +356,23 @@ const handleFiles = async (e: React.ChangeEvent<HTMLInputElement>) => {
               ))}
             </ul>
           )}
+        </div>
+        <div>
+          <select
+  name="category"
+  value={formData.category}
+  onChange={handleChange}
+  className="border p-2 w-full"
+>
+  <option value="">Select Category</option>
+  {categories
+    .filter((cat : any) => cat.parent) // only child categories
+    .map((cat : any) => (
+      <option key={cat._id} value={cat._id}>
+        {cat.name} (child of {cat.parent.name})
+      </option>
+    ))}
+</select>
         </div>
 
         <button

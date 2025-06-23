@@ -3,6 +3,7 @@ import { NextResponse } from 'next/server';
 import { connectDB } from '@/lib/mongoose';
 import Listing from '@/models/postModel';
 import { z } from 'zod';
+import mongoose from 'mongoose';
 
 const schema = z.object({
   title: z.string().min(2),
@@ -13,6 +14,8 @@ const schema = z.object({
   discount_price: z.number().optional(),
   top_selling: z.boolean().optional(),
   clearance_sale: z.boolean().optional(),
+  category: z.string(), // required category ID
+status: z.boolean().optional()
 });
 
 export async function GET(_: Request, { params }: { params: { id: string } }) {
@@ -29,8 +32,8 @@ export async function GET(_: Request, { params }: { params: { id: string } }) {
 export async function PUT(req: Request, { params }: { params: { id: string } }) {
   try {
     const body = await req.json();
-    const data = schema.parse(body);
-
+    const data : any = schema.parse(body);
+    data.category = new mongoose.Types.ObjectId(data.category)
     await connectDB();
     const updated = await Listing.findByIdAndUpdate(params.id, data, { new: true });
     if (!updated) return NextResponse.json({ message: 'Not found' }, { status: 404 });
