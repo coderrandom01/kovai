@@ -18,6 +18,7 @@ export default function LandingPage() {
   const [selectedCategory, setSelectedCategories] = useState<any>({})
   const [childCategories, setChildCategories] = useState([])
   const [filteredListings,setFilteredListings] = useState([])
+  const [childSelected,setChildSelected] = useState(false)
 const images = [
     "https://kovai-guppies-images.s3.eu-north-1.amazonaws.com/u-Xq2bmK-PaDNbH1ZArbR.jpg",
     "https://kovai-guppies-images.s3.eu-north-1.amazonaws.com/h5W5D1HGNaRSnKJRt-Au4.jpg",
@@ -51,6 +52,7 @@ const images = [
 const filteredListings = listings.filter(
   (listing : any) => listing.category === item._id
 );
+setChildSelected(true)
 setFilteredListings(filteredListings)
   }
   else if(item?.name){
@@ -120,17 +122,17 @@ setFilteredListings(filteredListings)
     </section>
       {/* Product Listings */}
       <section className="px-6 py-10 bg-sky-50">
-        <div className='flex justify-center mb-6'>
-        
+        <h2 className="text-3xl font-bold mb-6 text-center text-sky-500">Categories</h2>
+<div className="flex flex-wrap justify-center gap-4 mb-6 px-4">        
             <div className='m-2 text-center font-medium'>
-      <img src= "https://jprcwo3zvr1gqikh.public.blob.vercel-storage.com/allfish-1750699914748-gxkQc8Ruyo-z75Kuwy8iQ.jpg" className = "w-28 h-28 rounded-lg"/>
+      <img src= "https://jprcwo3zvr1gqikh.public.blob.vercel-storage.com/allfish-1750699914748-gxkQc8Ruyo-z75Kuwy8iQ.jpg" className = "w-28 h-28 object-cover rounded-lg mx-auto"/>
     
         <button className = "bg-sky-500 hover:bg-sky-600 text-white w-full px-4 py-1 rounded mt-2" onClick = {() => handleCategory({})}>All Fishes</button>
     </div>
 
         {selectedCategory?.name ? childCategories.map((item : any) => (
     <div key={item._id} className='m-2 text-center font-medium'>
-      <img src={item.image} className = "w-28 h-28 rounded-lg"/>
+      <img src={item.image} className = "w-28 h-28 object-cover rounded-lg mx-auto"/>
       
         <button className = "bg-sky-500 hover:bg-sky-600 text-white w-full px-4 py-1 rounded mt-2" onClick = {() => handleCategory(item)}>{item.name}</button>
 
@@ -146,14 +148,25 @@ setFilteredListings(filteredListings)
     </div>
 ))}
         </div>
-        <h2 className="text-3xl font-bold mb-6 text-center text-sky-500">{selectedCategory?.name ? selectedCategory.name : "All Fishes"}</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {loading
-    ? Array.from({ length: 3 }).map((_, i) => <ListingCardSkeleton key={i} />)
-    : filteredListings.map((listing: any) => (
-        <ListingCard key={listing._id} listing={listing}  />
-      ))}
-        </div>
+        <h2 className="text-3xl font-bold mb-6 text-center text-sky-500">{childSelected ? selectedCategory.name : "All Fishes"}</h2>
+        {loading ? (
+  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+    {Array.from({ length: 3 }).map((_, i) => (
+      <ListingCardSkeleton key={i} />
+    ))}
+  </div>
+) : filteredListings.length > 0 ? (
+  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+    {filteredListings.map((listing: any) => (
+      <ListingCard key={listing._id} listing={listing} />
+    ))}
+  </div>
+) : (
+  <div className = "flex justify-center items-center flex-col">
+  <div className="text-center text-gray-500 mt-10 text-lg">No Fishes or Products found.</div>
+  <button className = "bg-sky-500 hover:bg-sky-600 text-white w-52 px-4 py-1 rounded mt-2" onClick = {() => handleCategory({})}>All Fishes</button>
+  </div>
+)}
       </section>
     </div>
   );
