@@ -193,7 +193,7 @@ function ListingCard({ listing }: { listing: any }) {
   const [mobile, setMobile] = useState('');
   const nextImage = () => setIndex((index + 1) % images.length);
   const prevImage = () => setIndex((index - 1 + images.length) % images.length);
-   const businessWhatsAppNumber = '918883670422'; // example: India number
+   const businessWhatsAppNumber = '919344644827'; // example: India number
 
   // Create WhatsApp URL with message
   const createWhatsAppUrl = () => {
@@ -310,7 +310,7 @@ window.location.href = createWhatsAppUrl();
             <h4 className="text-xl mb-4 font-semibold text-black">Enter your Name</h4>
             <form onSubmit={handleSubmit} className="space-y-4">
               <input
-                type="tel"
+                type="text"
                 value={mobile}
                 onChange={(e) => setMobile(e.target.value)}
                 placeholder="Name"
