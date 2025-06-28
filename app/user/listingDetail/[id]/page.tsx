@@ -94,6 +94,7 @@ export default function ListingDetail({ params }: Props) {
     description,
     price,
     discount_price,
+    discount_percent,
     display_price,
     images = [],
     top_selling,
@@ -175,10 +176,10 @@ export default function ListingDetail({ params }: Props) {
 
     <div className="space-y-1">
       <p>
-        <span className="font-semibold">Price:</span> ₹{price}
+        <span className="font-semibold">Price:</span> <span className='line-through'>₹{price}</span>
       </p>
       {discount_price && (
-        <p className="text-red-600 font-medium">Discount: {discount_price}% off</p>
+        <p className="text-red-600 font-medium">Discount: ₹{discount_price} off</p>
       )}
       <p className="text-sky-600 dark:text-sky-400 font-bold text-lg">
         Final Price: ₹{display_price}
