@@ -1,5 +1,6 @@
 'use client'
 import { isErrorValid } from '@/errorValidations/handleErrors';
+import { validateFormData } from '@/errorValidations/validateFormErrors';
 import { useEffect, useState } from 'react';
 
 export default function CategoriesPage() {
@@ -29,7 +30,9 @@ const [formData, setFormData] = useState({
 
   const handleSubmit = async (e: { preventDefault: () => void; }) => {
     e.preventDefault();
-    const isError = isErrorValid(formData,error)
+    const errors : any = validateFormData("category",formData)
+    const isError = isErrorValid(formData,errors)
+    setError(errors)
     if(isError){
         setUploading(true);
         const method = editId ? 'PUT' : 'POST';
@@ -125,109 +128,127 @@ const handleDelete = async (
   }
 };
   return (
-    <div className="max-w-xl mx-auto p-6">
-      <h1 className="text-xl font-semibold mb-4">Create Category</h1>
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <input
-          type="text"
-          name = "name"
-          placeholder="Category name"
-          value={formData.name}
-          onChange={handleChange}
-          className="border p-2 w-full"
-        />
-        {error.name && <p className='text-red-500 text-sm'></p>}
-        <select
-          value={formData.parent}
-          name = 'parent'
-          onChange={handleChange}
-          className="border p-2 w-full"
-        >
-          <option value="">Make it a Parent Category</option>
-          {categories
-            .filter((cat : any) => cat.parent === null)
-            .map((cat : any) => (
-              <option key={cat._id} value={cat._id}>
-                {cat.name}
-              </option>
-            ))}
-        </select>
+<div className="max-w-xl mx-auto p-6 bg-white dark:bg-gray-900 text-black dark:text-white">
+  <h1 className="text-xl font-semibold mb-4">Create Category</h1>
 
-        <input
-  type="file"
-  accept="image/*"
-  onChange={handleSingleFile}
-  className="border p-2 w-full"
-/>
-        {error.image && <p className='text-red-500 text-sm'></p>}
+  <form onSubmit={handleSubmit} className="space-y-4">
+    <input
+      type="text"
+      name="name"
+      placeholder="Category name"
+      value={formData.name}
+      onChange={handleChange}
+      className="border p-2 w-full bg-white dark:bg-gray-800 dark:border-gray-600 dark:text-white"
+    />
+    {error.name && <p className='text-red-500 text-sm'>{error.name}</p>}
 
-{formData.image && (
-  <img src={formData.image} alt="Preview" className="w-16 h-16 mt-2 rounded object-cover" />
-)}
+    <select
+      value={formData.parent}
+      name="parent"
+      onChange={handleChange}
+      className="border p-2 w-full bg-white dark:bg-gray-800 dark:border-gray-600 dark:text-white"
+    >
+      <option value="">Make it a Parent Category</option>
+      {categories
+        .filter((cat: any) => cat.parent === null)
+        .map((cat: any) => (
+          <option key={cat._id} value={cat._id}>
+            {cat.name}
+          </option>
+        ))}
+    </select>
 
-        <label className="flex items-center gap-2">
-          <input
-          name = "status"
-            type="checkbox"
-            checked={formData.status}
-            onChange={handleChange}
-          />
-          Enabled
-        </label>
+    <input
+      type="file"
+      accept="image/*"
+      onChange={handleSingleFile}
+      className="border p-2 w-full bg-white dark:bg-gray-800 dark:border-gray-600 dark:text-white"
+    />
+    {error.image && <p className='text-red-500 text-sm'>{error.image}</p>}
 
-        <button
-          type="submit"
-          className="bg-blue-500 text-white px-4 py-2 rounded"
-          disabled={uploading}
-        >
-          {editId ? 'Update Category' : 'Create Category'}
-        </button>
-      </form>
-
-      <h2 className="text-lg font-semibold mt-6">All Categories</h2>
-      <ul className="mt-4 space-y-4">
-        {categories.map((cat : any) => (
-<li key={cat._id} className="flex items-center justify-between gap-4 border p-2 rounded">
-  <div className="flex items-center gap-3">
-    {cat.image && (
-      <img src={cat.image} alt={cat.name} className="w-10 h-10 object-cover rounded" />
+    {formData.image && (
+      <img
+        src={formData.image}
+        alt="Preview"
+        className="w-16 h-16 mt-2 rounded object-cover border dark:border-gray-600"
+      />
     )}
-    <div>
-      <div className="font-semibold">{cat.name}</div>
-      <div className="text-sm text-gray-500">
-        {cat.parent ? `(Child of ${cat.parent.name})` : '(Parent)'} — {cat.status ? 'Enabled' : 'Disabled'}
-      </div>
-    </div>
-  </div>
 
-  <div className="flex gap-2">
-    <button
-      onClick={() => {
-        setFormData({
-          name: cat.name,
-          parent: cat.parent?._id || '',
-          status: cat.status,
-          image: cat.image || '',
-        });
-        setImageUrl(cat.image || '');
-        setEditId(cat._id);
-      }}
-      className="text-blue-500 hover:underline"
-    >
-      Edit
-    </button>
+    <label className="flex items-center gap-2">
+      <input
+        name="status"
+        type="checkbox"
+        checked={formData.status}
+        onChange={handleChange}
+      />
+      Enabled
+    </label>
 
     <button
-      onClick={() => handleDelete(cat._id, cat.name, cat.parent, categories)}
-      className="text-red-500 hover:underline"
+      type="submit"
+      className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded"
+      disabled={uploading}
     >
-      Delete
+      {editId ? 'Update Category' : 'Create Category'}
     </button>
-  </div>
-</li>
+  </form>
 
-))}
-      </ul>
-    </div>
+  <h2 className="text-lg font-semibold mt-6">All Categories</h2>
+
+  <ul className="mt-4 space-y-4">
+    {categories.map((cat: any) => (
+      <li
+        key={cat._id}
+        className="flex items-center justify-between gap-4 border p-2 rounded bg-white dark:bg-gray-800 dark:border-gray-600"
+      >
+        <div className="flex items-center gap-3">
+          {cat.image && (
+            <img
+              src={cat.image}
+              alt={cat.name}
+              className="w-10 h-10 object-cover rounded border dark:border-gray-600"
+            />
+          )}
+          <div>
+            <div className="font-semibold">{cat.name}</div>
+            <div className="text-sm text-gray-500 dark:text-gray-400">
+              {cat.parent
+                ? `(Child of ${cat.parent.name})`
+                : '(Parent)'} — {cat.status ? 'Enabled' : 'Disabled'}
+            </div>
+          </div>
+        </div>
+
+        <div className="flex gap-2">
+          <button
+            onClick={() => {
+              setFormData({
+                name: cat.name,
+                parent: cat.parent?._id || '',
+                status: cat.status,
+                image: cat.image || '',
+              });
+              setImageUrl(cat.image || '');
+              setEditId(cat._id);
+            }}
+            className="text-blue-500 hover:underline"
+          >
+            Edit
+          </button>
+
+          <button
+            onClick={() =>
+              handleDelete(cat._id, cat.name, cat.parent, categories)
+            }
+            className="text-red-500 hover:underline"
+          >
+            Delete
+          </button>
+        </div>
+      </li>
+    ))}
+  </ul>
+</div>
+
   );
 }

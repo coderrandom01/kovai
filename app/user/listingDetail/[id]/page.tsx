@@ -126,102 +126,105 @@ export default function ListingDetail({ params }: Props) {
   return (
 
     <div className="max-w-5xl mx-auto px-4 py-8">
-      {/* Breadcrumb */}
-      <div className="text-sm text-gray-500 mb-4">
-        <Link href={"/"}><span className="text-gray-400">Home</span></Link> / <span className="text-black">Product</span>
-      </div>
+  {/* Breadcrumb */}
+  <div className="text-sm text-gray-500 dark:text-white mb-4">
+    <Link href={"/"}>
+      <span className="text-gray-400 dark:text-gray-500">Home</span>
+    </Link> / <span className=" dark:text-white text-black">Product</span>
+  </div>
 
-      {/* Image Carousel */}
-      <div className="relative max-w-4xl  mb-6">
-        {/* Embla Viewport */}
-        <div className="overflow-hidden rounded-lg" ref={emblaRef}>
-          <div className="flex">
-            {images.map((img, idx) => (
-              <div
-                key={idx}
-                className="min-w-full h-[300px] sm:h-[450px] relative"
-              >
-                <Image
-                  src={img}
-                  alt={`Fish ${idx + 1}`}
-                  fill
-                  className="object-cover"
-                  priority={idx === 0}
-                />
-              </div>
-            ))}
+  {/* Image Carousel */}
+  <div className="relative max-w-4xl mb-6">
+    <div className="overflow-hidden rounded-lg" ref={emblaRef}>
+      <div className="flex">
+        {images.map((img, idx) => (
+          <div key={idx} className="min-w-full h-[300px] sm:h-[450px] relative">
+            <Image
+              src={img}
+              alt={`Fish ${idx + 1}`}
+              fill
+              className="object-cover"
+              priority={idx === 0}
+            />
           </div>
-        </div>
-
-        {/* Navigation Buttons */}
-        {images.length > 1 && (
-          <>
-            <button
-              onClick={scrollPrev}
-              className="absolute left-2 top-1/2 -translate-y-1/2 bg-sky-500 text-white p-2 rounded-full shadow z-10"
-            >
-              <ChevronLeft />
-            </button>
-            <button
-              onClick={scrollNext}
-              className="absolute right-2 top-1/2 -translate-y-1/2 bg-sky-500 text-white p-2 rounded-full shadow z-10"
-            >
-              <ChevronRight />
-            </button>
-          </>
-        )}
-      </div>
-
-      {/* Product Info */}
-      <div className="space-y-4">
-        <h2 className="text-2xl sm:text-3xl font-bold">{title}</h2>
-        <p className="text-gray-600">{description}</p>
-
-        <div className="space-y-1">
-          <p className="text-gray-700">
-            <span className="font-semibold">Price:</span> ₹{price}
-          </p>
-          {discount_price && (
-            <p className="text-red-600 font-medium">
-              Discount: {discount_price}% off
-            </p>
-          )}
-          <p className="text-sky-600 font-bold text-lg">Final Price: ₹{display_price}</p>
-        </div>
-
-        {top_selling && (
-          <span className="inline-block text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full">
-            Top Selling
-          </span>
-        )}
-        {clearance_sale && (
-          <span className="inline-block text-xs bg-red-100 text-red-700 px-2 py-1 rounded-full ml-2">
-            Clearance Sale
-          </span>
-        )}
-
-        <div className="pt-6">
-          <h3 className="font-semibold text-lg">More Info</h3>
-          <p className="text-sm text-gray-500">
-            Follow us on Instagram for more fish care and aquarium tips: <br />
-            @KovaiGuppies @KovaiAquatics
-          </p>
-        </div>
-        <div className="flex gap-2 items-center mb-4">
-          <label htmlFor="quantity" className="font-medium">Quantity:</label>
-          <input
-            id="quantity"
-            type="number"
-            value={count}
-            onChange={(e) => setCount((e.target.value))}
-            placeholder='0'
-            className="border rounded px-2 py-1 w-20"
-          />
-        </div>
-        <button className="mt-4 bg-red-500 hover:bg-red-600 text-white font-semibold px-6 py-2 rounded shadow" onClick={addToCart}>
-          Add to Cart
-        </button>
+        ))}
       </div>
     </div>
+
+    {images.length > 1 && (
+      <>
+        <button
+          onClick={scrollPrev}
+          className="absolute left-2 top-1/2 -translate-y-1/2 bg-sky-500 text-white p-2 rounded-full shadow z-10"
+        >
+          <ChevronLeft />
+        </button>
+        <button
+          onClick={scrollNext}
+          className="absolute right-2 top-1/2 -translate-y-1/2 bg-sky-500 text-white p-2 rounded-full shadow z-10"
+        >
+          <ChevronRight />
+        </button>
+      </>
+    )}
+  </div>
+
+  {/* Product Info */}
+  <div className="space-y-4 text-gray-800 dark:text-gray-100">
+    <h2 className="text-2xl sm:text-3xl font-bold">{title}</h2>
+    <p className="text-gray-600 dark:text-gray-300">{description}</p>
+
+    <div className="space-y-1">
+      <p>
+        <span className="font-semibold">Price:</span> ₹{price}
+      </p>
+      {discount_price && (
+        <p className="text-red-600 font-medium">Discount: {discount_price}% off</p>
+      )}
+      <p className="text-sky-600 dark:text-sky-400 font-bold text-lg">
+        Final Price: ₹{display_price}
+      </p>
+    </div>
+
+    {top_selling && (
+      <span className="inline-block text-xs bg-green-100 dark:bg-green-700 dark:text-white text-green-700 px-2 py-1 rounded-full">
+        Top Selling
+      </span>
+    )}
+    {clearance_sale && (
+      <span className="inline-block text-xs bg-red-100 dark:bg-red-700 dark:text-white text-red-700 px-2 py-1 rounded-full ml-2">
+        Clearance Sale
+      </span>
+    )}
+
+    <div className="pt-6">
+      <h3 className="font-semibold text-lg">More Info</h3>
+      <p className="text-sm text-gray-500 dark:text-gray-400">
+        Follow us on Instagram for more fish care and aquarium tips: <br />
+        @KovaiGuppies @KovaiAquatics
+      </p>
+    </div>
+
+    <div className="flex gap-2 items-center mb-4">
+      <label htmlFor="quantity" className="font-medium text-black dark:text-white">Quantity:</label>
+      <input
+        id="quantity"
+        type="number"
+        value={count}
+        onChange={(e) => setCount(e.target.value)}
+        placeholder='0'
+        className="border rounded px-2 py-1 w-20 bg-white dark:bg-gray-800 dark:text-white"
+      />
+    </div>
+
+    <button
+      className="mt-4 bg-red-500 hover:bg-red-600 text-white font-semibold px-6 py-2 rounded shadow"
+      onClick={addToCart}
+    >
+      Add to Cart
+    </button>
+  </div>
+</div>
+
   );
 }

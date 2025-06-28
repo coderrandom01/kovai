@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
+import { validateFormData } from '@/errorValidations/validateFormErrors';
+import { isErrorValid } from '@/errorValidations/handleErrors';
 
 interface ListingFormData {
   title: string;
@@ -16,7 +18,14 @@ interface ListingFormData {
   status: boolean
   category : any
 }
-
+interface ListingErrors {
+  title?: string;
+  description?: string;
+  price?: string;
+  discount_percent?: string;
+  images?: string;
+  category?: string;
+}
 interface Props {
   params: { id?: string }; // id param is optional for create
 }
@@ -39,6 +48,14 @@ export default function EditListingPage({ params }: Props) {
     status : true,
     category : ''
   });
+  const [errors, setErrors] = useState<ListingErrors>({
+title : "",
+  description : "",
+  price : "",
+  discount_percent : "",
+  images : '',
+  category : "",
+  })
 
   const [imageUrls, setImageUrls] = useState<string[]>([]);
   const [uploading, setUploading] = useState(false);
@@ -99,6 +116,7 @@ export default function EditListingPage({ params }: Props) {
       ...prev,
       [name]: newValue,
     }));
+    setErrors(prev => ({...prev,[name] : ''}))
   }
 
   async function putToS3(file: File): Promise<string> {
@@ -144,6 +162,7 @@ export default function EditListingPage({ params }: Props) {
   });
 
   const { url } = await res.json();
+  setErrors(prev => ({...prev,images : ""}))
   return url;
 }
 
@@ -167,7 +186,6 @@ const handleFiles = async (e: React.ChangeEvent<HTMLInputElement>) => {
         ...prev,
         images: [...prev.images, ...urls],
       }));
-    console.log('Uploaded image URLs:', urls);
   };
   function removeImage(url: string) {
     setImageUrls(prev => prev.filter(u => u !== url));
@@ -179,123 +197,133 @@ const handleFiles = async (e: React.ChangeEvent<HTMLInputElement>) => {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-  if (!formData.title.trim()) {
-    return alert('Title is required.');
+
+  const {title ,
+  description ,
+  price ,
+  discount_percent ,
+  images ,
+  category } = formData
+    
+    const errors : any = validateFormData('listing', formData);
+    setErrors(errors);
+if(isErrorValid({title,description,price,discount_percent,images,category},errors)){
+  const payload = {
+    title:           formData.title,
+    description:     formData.description,
+    images:          imageUrls,
+    price:           Number(formData.price),
+    display_price:   Number(formData.display_price),
+    discount_price:  Number(formData.discount_price),
+    top_selling:     formData.top_selling,
+    clearance_sale:  formData.clearance_sale,
+    status : formData.status,
+    category : formData.category
+  };
+
+  const method = id && id !== 'new' ? 'PUT' : 'POST';
+  const url = id && id !== 'new' ? `/api/listings/${id}` : '/api/listings';
+
+  const res = await fetch(url, {
+    method,
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  });
+  if (res.ok) {
+    alert(id ? 'Listing updated!' : 'Listing created!');
+    router.push('/admin/listings'); // or wherever you want to go after
+  } else {
+    alert('Error saving listing');
   }
 
-  if (!formData.description.trim()) {
-    return alert('Description is required.');
+}
   }
-
-  if (!imageUrls || imageUrls.length === 0) {
-    return alert('Please upload at least one image.');
-  }
-
-  if (!formData.price || isNaN(Number(formData.price)) || Number(formData.price) <= 0) {
-    return alert('Valid price is required.');
-  }
-    const payload = {
-      title:           formData.title,
-      description:     formData.description,
-      images:          imageUrls,
-      price:           Number(formData.price),
-      display_price:   Number(formData.display_price),
-      discount_price:  Number(formData.discount_price),
-      top_selling:     formData.top_selling,
-      clearance_sale:  formData.clearance_sale,
-      status : formData.status,
-      category : formData.category
-    };
-
-    const method = id && id !== 'new' ? 'PUT' : 'POST';
-    const url = id && id !== 'new' ? `/api/listings/${id}` : '/api/listings';
-
-    const res = await fetch(url, {
-      method,
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
-    });
-    console.log("resresresres",res);
-    if (res.ok) {
-      alert(id ? 'Listing updated!' : 'Listing created!');
-      router.push('/admin/listings'); // or wherever you want to go after
-    } else {
-      alert('Error saving listing');
-    }
-  }
-
+const checkboxFields: { name: keyof ListingFormData; label: string }[] = [
+  { name: 'top_selling', label: 'Top Selling' },
+  { name: 'clearance_sale', label: 'Clearance Sale' },
+  { name: 'status', label: 'Status' },
+];
   if (loading) return <p>Loading...</p>;
 
   return (
-    <section className="mx-auto max-w-xl bg-white rounded-xl shadow p-8">
-      <h1 className="text-2xl font-semibold mb-6 text-brand">Add Listing</h1>
+   <section className="mx-auto max-w-xl bg-white dark:bg-gray-900 rounded-xl shadow p-8 text-black dark:text-white">
+  <h1 className="text-2xl font-semibold mb-6 text-brand">Add Listing</h1>
 
-      <form onSubmit={handleSubmit} className="space-y-6">
-        <div>
-          <label className="block font-medium text-black">Title</label>
-          <input
-            name="title"
-            value={formData.title}
-            onChange={handleChange}
-            className="input"
-          />
-        </div>
+  <form onSubmit={handleSubmit} className="space-y-6">
+    <div>
+      <label className="block font-medium">Title</label>
+      <input
+        name="title"
+        value={formData.title}
+        onChange={handleChange}
+        className="input border p-2 w-full bg-white dark:bg-gray-800 dark:border-gray-600 dark:text-white"
+      />
+    {errors.title && <p className='text-red-500 text-sm'>{errors.title}</p>}
 
-        <div>
-          <label className="block font-medium text-black">Description</label>
-          <textarea
-            name="description"
-            value={formData.description}
-            onChange={handleChange}
-            className="input h-24"
-          />
-        </div>
+    </div>
 
-        <div>
-          <label className="block font-medium text-black">Price</label>
-          <input
-            type="number"
-            step="0.01"
-            name="price"
-            value={formData.price}
-            onChange={handleChange}
-            className="input"
-          />
-        </div>
+    <div>
+      <label className="block font-medium">Description</label>
+      <textarea
+        name="description"
+        value={formData.description}
+        onChange={handleChange}
+        className="input h-24 border p-2 w-full bg-white dark:bg-gray-800 dark:border-gray-600 dark:text-white"
+      />
+    {errors.description && <p className='text-red-500 text-sm'>{errors.description}</p>}
 
-        <div>
-          <label className="block font-medium text-black">Discount (%)</label>
-          <input
-            type="number"
-            step="0.01"
-            name="discount_percent"
-            value={formData.discount_percent}
-            onChange={handleChange}
-            className="input"
-          />
-        </div>
+    </div>
 
-        <div>
-          <label className="block font-medium text-black">Discount Price</label>
-          <input
-            type="number"
-            value={formData.discount_price}
-            readOnly
-            className="input bg-gray-100"
-          />
-        </div>
+    <div>
+      <label className="block font-medium">Price</label>
+      <input
+        type="number"
+        step="0.01"
+        name="price"
+        value={formData.price}
+        onChange={handleChange}
+        className="input border p-2 w-full bg-white dark:bg-gray-800 dark:border-gray-600 dark:text-white"
+      />
+    {errors.price && <p className='text-red-500 text-sm'>{errors.price}</p>}
 
-        <div>
-          <label className="block font-medium text-black">Display Price (after discount)</label>
-          <input
-            type="number"
-            value={formData.display_price}
-            readOnly
-            className="input bg-gray-100"
-          />
-        </div>
+    </div>
 
-        <div className="flex items-center gap-2">
+    <div>
+      <label className="block font-medium">Discount (%)</label>
+      <input
+        type="number"
+        step="0.01"
+        name="discount_percent"
+        value={formData.discount_percent}
+        onChange={handleChange}
+        className="input border p-2 w-full bg-white dark:bg-gray-800 dark:border-gray-600 dark:text-white"
+      />
+    {errors.discount_percent && <p className='text-red-500 text-sm'>{errors.discount_percent}</p>}
+
+    </div>
+
+    <div>
+      <label className="block font-medium">Discount Price</label>
+      <input
+        type="number"
+        value={formData.discount_price}
+        readOnly
+        className="input bg-gray-100 dark:bg-gray-700 border p-2 w-full dark:border-gray-600 dark:text-white"
+      />
+    </div>
+
+    <div>
+      <label className="block font-medium">Display Price (after discount)</label>
+      <input
+        type="number"
+        value={formData.display_price}
+        readOnly
+        className="input bg-gray-100 dark:bg-gray-700 border p-2 w-full dark:border-gray-600 dark:text-white"
+      />
+    </div>
+
+    {/* Checkboxes */}
+   <div className="flex items-center gap-2">
           <input
             type="checkbox"
             name="top_selling"
@@ -303,7 +331,7 @@ const handleFiles = async (e: React.ChangeEvent<HTMLInputElement>) => {
             onChange={handleChange}
             className="h-4 w-4"
           />
-          <label className="block font-medium text-black">Top Selling</label>
+          <label className="block font-medium text-black dark:text-white">Top Selling</label>
         </div>
 
         <div className="flex items-center gap-2">
@@ -314,7 +342,7 @@ const handleFiles = async (e: React.ChangeEvent<HTMLInputElement>) => {
             onChange={handleChange}
             className="h-4 w-4"
           />
-          <label className="block font-medium text-black">Clearance Sale</label>
+          <label className="block font-medium text-black dark:text-white">Clearance Sale</label>
         </div>
         <div className="flex items-center gap-2">
           <input
@@ -324,65 +352,78 @@ const handleFiles = async (e: React.ChangeEvent<HTMLInputElement>) => {
             onChange={handleChange}
             className="h-4 w-4"
           />
-          <label className="block font-medium text-black">Status</label>
+          <label className="block font-medium text-black dark:text-white">Status</label>
         </div>
 
-        {/* Image uploader */}
-        <div>
-          <label className="block font-medium mb-1">
-            Upload Images
-            {uploading && <span className="ml-2 text-sm  text-black">(uploading…)</span>}
-          </label>
-          <input
-            type="file"
-            accept="image/*"
-            multiple
-            onChange={handleFiles}
-            disabled={uploading}
-          />
-          {imageUrls.length > 0 && (
-            <ul className="mt-4 flex flex-wrap gap-4">
-              {imageUrls.map(url => (
-                <li key={url} className="relative group">
-                  <img src={url} alt="" className="h-24 w-24 object-cover rounded" />
-                  <button
-                    type="button"
-                    onClick={() => removeImage(url)}
-                    className="absolute -top-2 -right-2 bg-red-600 text-white rounded-full h-6 w-6 opacity-90 group-hover:opacity-100"
-                  >
-                    ×
-                  </button>
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
-        <div>
-          <select
-  name="category"
-  value={formData.category}
-  onChange={handleChange}
-  className="border p-2 w-full"
->
-  <option value="">Select Category</option>
-  {categories
-    .filter((cat : any) => cat.parent) // only child categories
-    .map((cat : any) => (
-      <option key={cat._id} value={cat._id}>
-        {cat.name} (child of {cat.parent.name})
-      </option>
-    ))}
-</select>
-        </div>
+    {/* Image uploader */}
+    <div>
+      <label className="block font-medium mb-1">
+        Upload Images
+        {uploading && <span className="ml-2 text-sm">(uploading…)</span>}
+      </label>
+      <input
+        type="file"
+        accept="image/*"
+        multiple
+        onChange={handleFiles}
+        disabled={uploading}
+        className="dark:text-white"
+      />
+    {errors.images && <p className='text-red-500 text-sm'>{errors.images}</p>}
 
-        <button
-          type="submit"
-          className="bg-sky-500 hover:bg-sky-600 text-white px-4 py-2 rounded disabled:opacity-50"
-          // disabled={uploading || imageUrls.length === 0 && formData.price !== 0 || !formData.price && formData.title.length > 0}
-        >
-         {id ? "Update" : "Submit"}
-        </button>
-      </form>
-    </section>
+      {imageUrls.length > 0 && (
+        <ul className="mt-4 flex flex-wrap gap-4">
+          {imageUrls.map((url) => (
+            <li key={url} className="relative group">
+              <img
+                src={url}
+                alt=""
+                className="h-24 w-24 object-cover rounded border dark:border-gray-600"
+              />
+              <button
+                type="button"
+                onClick={() => removeImage(url)}
+                className="absolute -top-2 -right-2 bg-red-600 text-white rounded-full h-6 w-6 opacity-90 group-hover:opacity-100"
+              >
+                ×
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+
+    {/* Category Dropdown */}
+    <div>
+      <select
+        name="category"
+        value={formData.category}
+        onChange={handleChange}
+        className="border p-2 w-full bg-white dark:bg-gray-800 dark:border-gray-600 dark:text-white"
+      >
+        <option value="">Select Category</option>
+        {categories
+          .filter((cat: any) => cat.parent)
+          .map((cat: any) => (
+            <option key={cat._id} value={cat._id}>
+              {cat.name} (child of {cat.parent.name})
+            </option>
+          ))}
+      </select>
+    {errors.category && <p className='text-red-500 text-sm'>{errors.category}</p>}
+
+    </div>
+
+    <button
+      type="submit"
+      className="bg-sky-500 hover:bg-sky-600 text-white px-4 py-2 rounded disabled:opacity-50"
+    >
+      {id ? 'Update' : 'Submit'}
+    </button>
+  </form>
+</section>
+
   );
 }
+
+

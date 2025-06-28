@@ -3,7 +3,7 @@
 import { useLocalStorage } from '@/hooks/useLocalStorage';
 import { ShoppingCart } from 'lucide-react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { useCart } from '@/context/cartContext';
 export default function CartIcon() {
@@ -11,11 +11,12 @@ export default function CartIcon() {
   const { cartCount } = useCart();
   const [isClient, setIsClient] = useState(false);
   //  const [cartCount, setCartCount] = useState(0)
-
+  const pathname = usePathname();
+  const isAdmin = pathname.startsWith('/admin');
   useEffect(() => {
     setIsClient(true); // Ensure rendering only happens on client
   }, []);
-  if (!isClient) return null;
+  if (!isClient || isAdmin) return null;
   return (
     <header className="bg-sky-500 text-white p-6 shadow-md sticky top-0 z-50">
       <div className="max-w-7xl mx-auto flex items-center justify-between">
