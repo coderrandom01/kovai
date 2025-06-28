@@ -1,9 +1,13 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { Key, useEffect, useState } from 'react';
 import Image from 'next/image';
 import { motion, AnimatePresence  } from 'framer-motion';
 import { Parisienne } from 'next/font/google'
+import useEmblaCarousel from 'embla-carousel-react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { StaticImport } from 'next/dist/shared/lib/get-img-props';
+import { useRouter } from 'next/navigation';
 const parisienne = Parisienne({
   subsets: ['latin'],
   weight: '400', // Only 400 is available
@@ -19,6 +23,7 @@ export default function LandingPage() {
   const [childCategories, setChildCategories] = useState([])
   const [filteredListings,setFilteredListings] = useState([])
   const [childSelected,setChildSelected] = useState(false)
+  const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true, align: 'start' });
 const images = [
     "https://kovai-guppies-images.s3.eu-north-1.amazonaws.com/u-Xq2bmK-PaDNbH1ZArbR.jpg",
     "https://kovai-guppies-images.s3.eu-north-1.amazonaws.com/h5W5D1HGNaRSnKJRt-Au4.jpg",
@@ -46,6 +51,12 @@ const images = [
 
     fetchListings();
   }, []);
+   useEffect(() => {
+    if (emblaApi) {
+      emblaApi.reInit(); // ensure correct resizing when data loads
+    }
+  }, [categories, selectedCategory]);
+  const allItems = selectedCategory?.name ? childCategories : categories.filter((item : any) => item.parent === null);
  const handleCategory = (item : any) => {
   setSelectedCategories(item)
   if(childCategories.length > 0 && item?.name){
@@ -68,14 +79,7 @@ setFilteredListings(filteredListings)
 
   return (
     <div>
-          <header className="bg-sky-500 text-white p-6 shadow-md sticky top-0 z-50">
-      <div className="max-w-7xl mx-auto flex items-center">
-        <div>
-          <img src='https://kovai-guppies-images.s3.eu-north-1.amazonaws.com/4hY0fNISWkkqxy7bvBk_o.jpg' className='w-20 h-20' />
-        </div>
-        <h1 className="text-3xl font-bold ml-3">Kovai Guppies</h1>
-      </div>
-    </header>
+  
       {/* Video Banner */}
   <section className="relative w-full h-[80vh] overflow-hidden bg-black">
       <AnimatePresence mode="wait">
@@ -123,31 +127,35 @@ setFilteredListings(filteredListings)
       {/* Product Listings */}
       <section className="px-6 py-10 bg-sky-50">
         <h2 className="text-3xl font-bold mb-6 text-center text-sky-500">Categories</h2>
-<div className="flex flex-wrap justify-center gap-4 mb-6 px-4">        
-            <div className='m-2 text-center font-medium'>
-      <img src= "https://jprcwo3zvr1gqikh.public.blob.vercel-storage.com/allfish-1750699914748-gxkQc8Ruyo-z75Kuwy8iQ.jpg" className = "w-28 h-28 object-cover rounded-lg mx-auto"/>
-    
-        <button className = "bg-sky-500 hover:bg-sky-600 text-white w-full px-4 py-1 rounded mt-2" onClick = {() => handleCategory({})}>All Fishes</button>
-    </div>
-
-        {selectedCategory?.name ? childCategories.map((item : any) => (
-    <div key={item._id} className='m-2 text-center font-medium'>
-      <img src={item.image} className = "w-28 h-28 object-cover rounded-lg mx-auto"/>
-      
-        <button className = "bg-sky-500 hover:bg-sky-600 text-white w-full px-4 py-1 rounded mt-2" onClick = {() => handleCategory(item)}>{item.name}</button>
-
-    </div>
-)) : categories
-  ?.filter((item : any) => item.parent === null)
-  .map((item : any) => (
-    <div key={item._id} className='m-2 text-center font-medium'>
-      <img src={item.image} className = "w-28 h-28 rounded-lg"/>
-      
-        <button className = "bg-sky-500 hover:bg-sky-600 text-white w-full px-4 py-1 rounded mt-2" onClick = {() => handleCategory(item)}>{item.name}</button>
-
-    </div>
-))}
+        <div className="overflow-hidden px-4" ref={emblaRef}>
+      <div className="flex gap-4 md:justify-center mb-6">
+        {/* All Fishes static card */}
+        <div className="min-w-[120px] text-center font-medium shrink-0 pl-5">
+          <img
+            src="https://jprcwo3zvr1gqikh.public.blob.vercel-storage.com/allfish-1750699914748-gxkQc8Ruyo-z75Kuwy8iQ.jpg"
+            className="w-28 h-28 object-cover rounded-lg mx-auto"
+          />
+          <button
+            className="bg-sky-500 hover:bg-sky-600 text-white w-full px-2 py-1 rounded mt-2 text-sm"
+            onClick={() => handleCategory({})}
+          >
+            All Fishes
+          </button>
         </div>
+
+        {allItems.map((item: any) => (
+          <div key={item._id} className="min-w-[120px] text-center font-medium shrink-0">
+            <img src={item.image} className="w-28 h-28 object-cover rounded-lg mx-auto" />
+            <button
+              className="bg-sky-500 hover:bg-sky-600 text-white w-full px-2 py-1 rounded mt-2 text-sm"
+              onClick={() => handleCategory(item)}
+            >
+              {item.name}
+            </button>
+          </div>
+        ))}
+      </div>
+    </div>
         <h2 className="text-3xl font-bold mb-6 text-center text-sky-500">{childSelected ? selectedCategory.name : "All Fishes"}</h2>
         {loading ? (
   <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
@@ -186,77 +194,62 @@ function ListingCardSkeleton() {
 
 // Enhanced ListingCard with zoom effect and modern design
 function ListingCard({ listing }: { listing: any }) {
-  const [index, setIndex] = useState(0);
   const images = listing.images || [];
-    const [count, setCount] = useState("");
-  const [showModal, setShowModal] = useState(false);
-  const [mobile, setMobile] = useState('');
-  const nextImage = () => setIndex((index + 1) % images.length);
-  const prevImage = () => setIndex((index - 1 + images.length) % images.length);
-   const businessWhatsAppNumber = '919344644827'; // example: India number
+  const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true });
+  const [selectedIndex, setSelectedIndex] = useState(0);
+const router = useRouter();
+  const scrollPrev = () => emblaApi?.scrollPrev();
+  const scrollNext = () => emblaApi?.scrollNext();
 
-  // Create WhatsApp URL with message
-  const createWhatsAppUrl = () => {
-    const msg = `Hello, I want to buy ${count} unit(s) of *${listing.title}* priced at ₹${listing.display_price}.\nMy Name is: ${mobile}`;
-    return `https://wa.me/${businessWhatsAppNumber}?text=${encodeURIComponent(msg)}`;
-  };
+  useEffect(() => {
+    if (!emblaApi) return;
+    emblaApi.on('select', () => {
+      setSelectedIndex(emblaApi.selectedScrollSnap());
+    });
+  }, [emblaApi]);
 
-  // Handle submit from modal
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!mobile) return alert('Please enter your Name');
-    // Redirect to WhatsApp chat
-window.location.href = createWhatsAppUrl();
-    setShowModal(false);
-    setCount("");
-    setMobile('');
-  };
+  const handleBuyClick = () => {
+  // if (Number(count) > 0) {
+    router.push(`/user/listingDetail/${listing._id}`);
+  // }
+};
   return (
     <>
   <motion.div
       className="bg-white rounded-2xl shadow-xl overflow-hidden group relative border border-sky-100 hover:shadow-2xl transition-all p-5"
       whileHover={{ scale: 1.02 }}
     >
-      {/* Smooth Image Carousel */}
-      <div className="relative w-full h-52 overflow-hidden rounded-lg">
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={images[index]}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.5 }}
-            className="absolute inset-0"
-          >
+<div className="relative w-full h-52 overflow-hidden rounded-lg" ref={emblaRef}>
+      <div className="flex h-full">
+        {images.map((img: string | StaticImport, idx: Key | null | undefined) => (
+          <div className="relative min-w-full h-52" key={idx}>
             <Image
-              src={images[index]}
+              src={img}
               alt="Product"
               fill
-              className="object-cover transition-transform duration-300 group-hover:scale-110 rounded"
+              className="object-cover rounded"
             />
-          </motion.div>
-        </AnimatePresence>
-
-        {images.length > 1 && (
-          <>
-            <button
-              onClick={prevImage}
-              className="absolute left-2 top-1/2 -translate-y-1/2 bg-sky-500/80 text-white p-2 rounded-full text-lg z-10 w-8 h-8"
-            >
-              <span className='absolute btn_display_right'>‹</span>
-              
-            </button>
-            <button
-              onClick={nextImage}
-              className="absolute right-2 top-1/2 -translate-y-1/2 bg-sky-500/80 text-white p-1 rounded-full text-lg z-10 w-8 h-8"
-            >
-              <span className='absolute btn_display_right'>›</span>
-              
-            </button>
-          </>
-        )}
+          </div>
+        ))}
       </div>
 
+      {images.length > 1 && (
+        <>
+          <button
+            onClick={scrollPrev}
+            className="absolute left-2 top-1/2 -translate-y-1/2 bg-sky-500/80 text-white p-2 rounded-full text-lg z-10 w-8 h-8"
+          >
+            <ChevronLeft size={18} />
+          </button>
+          <button
+            onClick={scrollNext}
+            className="absolute right-2 top-1/2 -translate-y-1/2 bg-sky-500/80 text-white p-2 rounded-full text-lg z-10 w-8 h-8"
+          >
+            <ChevronRight size={18} />
+          </button>
+        </>
+      )}
+    </div>
       {/* Product Info */}
       <div className="py-4 space-y-1">
         <h3 className="text-xl font-bold text-sky-500">{listing.title}</h3>
@@ -277,65 +270,17 @@ window.location.href = createWhatsAppUrl();
           </span>
         )}
       </div>
-      <div className="flex items-center gap-2 mb-4">
-        <label htmlFor={`count-${listing._id}`} className="font-medium text-black">
-          Quantity:
-        </label>
-        <input
-          id={`count-${listing._id}`}
-          type="number"
-          min={0}
-          max={99}
-          placeholder='0'
-          value={count}
-          onChange={(e) => setCount((e.target.value))}
-          className="w-16 border rounded px-2 py-1 text-black"
-        />
-      </div>
 
       {/* Buy button */}
       <button
-        disabled={Number(count) <= 0}
-        onClick={() => setShowModal(true)}
-        className={`w-full py-2 rounded text-white ${
-          Number(count) > 0 ? 'bg-sky-500 hover:bg-sky-600' : 'bg-gray-400 cursor-not-allowed'
-        }`}
+        // disabled={Number(count) <= 0}
+        onClick={handleBuyClick}
+        className={`w-full py-2 rounded text-white bg-sky-500 hover:bg-sky-600`}
       >
         Buy
       </button>
     </motion.div>
-     {showModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
-          <div className="bg-white rounded p-6 max-w-sm w-full shadow-lg">
-            <h4 className="text-xl mb-4 font-semibold text-black">Enter your Name</h4>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <input
-                type="text"
-                value={mobile}
-                onChange={(e) => setMobile(e.target.value)}
-                placeholder="Name"
-                className="w-full border px-3 py-2 rounded text-black"
-                required
-              />
-              <div className="flex justify-end gap-4">
-                <button
-                  type="button"
-                  onClick={() => setShowModal(false)}
-                  className="px-4 py-2 rounded border text-black"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="px-4 py-2 bg-sky-600 text-white rounded hover:bg-sky-700"
-                >
-                  Submit
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
+     
     </>
   );
 }
