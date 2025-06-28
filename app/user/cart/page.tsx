@@ -59,7 +59,7 @@ const [errors, setErrors] = useState({ name: '', address: '' });
     const waUrl = createWhatsAppUrl(cart, formData);
     if (waUrl) {
       setFormData({name : '',address:''})
-      window.open(waUrl, '_blank');
+     window.location.href = waUrl;
     } else {
       alert('Cart is empty!');
     }
