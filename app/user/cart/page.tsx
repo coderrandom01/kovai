@@ -12,11 +12,11 @@ type CartItem = {
 };
 export default function CartPage() {
   const { updateCartCount } = useCart();
-
+const [formData, setFormData] = useState({name : '', address: ''})
+const [errors, setErrors] = useState({ name: '', address: '' });
   const [cart, setCart] = useLocalStorage<any[]>('cart', []);
   const [subtotal, setSubtotal] = useState(0);
   const [showModal, setShowModal] = useState(false)
-  const [customerName, setCustomerName] = useState('')
   const shipping = 100;
   const taxRate = 0.08;
   const businessWhatsAppNumber = '919344644827'; // example: India number
@@ -42,36 +42,49 @@ export default function CartPage() {
 
   const tax = parseFloat((subtotal * taxRate).toFixed(2));
   const total = subtotal + shipping + tax;
-  const createWhatsAppUrl = (cartData: CartItem[], name: string) => {
-    if (!cartData.length) return '';
+ const createWhatsAppUrl = (cartData: CartItem[], formData: any) => {
+  if (!cartData.length) return '';
 
-    let total = 0;
-    const itemLines = cartData.map((item, i) => {
-      const itemTotal = item.display_price * item.count;
-      total += itemTotal;
-      return `${i + 1}. ${item.title} × ${item.count} = ₹${itemTotal}`;
-    });
+  let total = 0;
+  const itemLines = cartData.map((item, i) => {
+    const itemTotal = item.display_price * item.count;
+    total += itemTotal;
+    return `${i + 1}. ${item.title} × ${item.count} = ₹${itemTotal}`;
+  });
 
-    const msg = `Hello, I want to place an order:\n\n${itemLines.join('\n')}\n\nTotal: ₹${total}\n\nMy Name is: ${name}`;
-
-    return `https://wa.me/${businessWhatsAppNumber}?text=${encodeURIComponent(msg)}`;
-  };
+  const msg = `Hello, I want to place an order:\n\n${itemLines.join('\n')}\n\nTotal: ₹${total}\n\nMy Name is: ${formData.name}\nAddress: ${formData.address}`;
+  return `https://wa.me/${businessWhatsAppNumber}?text=${encodeURIComponent(msg)}`;
+};
   const handleCheckout = () => {
-    const waUrl = createWhatsAppUrl(cart, customerName);
+    const waUrl = createWhatsAppUrl(cart, formData);
     if (waUrl) {
-      setCustomerName('')
+      setFormData({name : '',address:''})
       window.open(waUrl, '_blank');
     } else {
       alert('Cart is empty!');
     }
   };
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!customerName) return alert('Please enter your Name');
-    // Redirect to WhatsApp chat
-    handleCheckout()
-    setShowModal(false);
+const handleSubmit = (e: React.FormEvent) => {
+  e.preventDefault();
+
+  const newErrors = {
+    name: formData.name ? '' : 'Please enter your name',
+    address: formData.address ? '' : 'Please enter your address',
   };
+
+  setErrors(newErrors);
+
+  const hasErrors = Object.values(newErrors).some(error => error);
+  if (hasErrors) return;
+
+  handleCheckout();
+  setShowModal(false);
+};
+const handleChange = (e : any) => {
+  const {name, value} = e.target;
+  setErrors(prev => ({...prev,[name] : ''}))
+  setFormData(prev => ({...prev,[name] : value}))
+}
   return (
 <div className="max-w-5xl mx-auto p-6 text-black dark:text-white">
   <h1 className="text-3xl font-bold mb-6">Shopping Cart</h1>
@@ -166,34 +179,46 @@ export default function CartPage() {
   {showModal && (
     <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
       <div className="bg-white dark:bg-gray-900 rounded p-6 max-w-sm w-full shadow-lg">
-        <h4 className="text-xl mb-4 font-semibold text-black dark:text-white">
-          Enter your Name
-        </h4>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <input
-            type="text"
-            value={customerName}
-            onChange={(e) => setCustomerName(e.target.value)}
-            placeholder="Name"
-            className="w-full border px-3 py-2 rounded text-black dark:text-white dark:bg-gray-800 dark:border-gray-700"
-            required
-          />
-          <div className="flex justify-end gap-4">
-            <button
-              type="button"
-              onClick={() => setShowModal(false)}
-              className="px-4 py-2 rounded border text-black dark:text-white dark:border-gray-600"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              className="px-4 py-2 bg-sky-600 text-white rounded hover:bg-sky-700"
-            >
-              Submit
-            </button>
-          </div>
-        </form>
+     <form onSubmit={handleSubmit} className="space-y-4">
+  <div>
+    <input
+      type="text"
+      name = "name"
+      value={formData.name}
+      onChange={handleChange}
+      placeholder="Name"
+      className="w-full border px-3 py-2 rounded text-black dark:text-white dark:bg-gray-800 dark:border-gray-700"
+    />
+    {errors.name && <p className="text-sm text-red-500 mt-1">{errors.name}</p>}
+  </div>
+
+  <div>
+    <textarea
+      name = 'address'
+      value={formData.address}
+      onChange={handleChange}
+      placeholder="Address"
+      className="w-full border px-3 py-2 rounded text-black dark:text-white dark:bg-gray-800 dark:border-gray-700"
+    />
+    {errors.address && <p className="text-sm text-red-500 mt-1">{errors.address}</p>}
+  </div>
+
+  <div className="flex justify-end gap-4">
+    <button
+      type="button"
+      onClick={() => setShowModal(false)}
+      className="px-4 py-2 rounded border text-black dark:text-white dark:border-gray-600"
+    >
+      Cancel
+    </button>
+    <button
+      type="submit"
+      className="px-4 py-2 bg-sky-600 text-white rounded hover:bg-sky-700"
+    >
+      Submit
+    </button>
+  </div>
+</form>
       </div>
     </div>
   )}
