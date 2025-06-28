@@ -38,7 +38,6 @@ export default function CartPage() {
     updated.splice(index, 1);
     setCart(updated);
     updateCartCount(updated)
-
   };
 
   const tax = parseFloat((subtotal * taxRate).toFixed(2));

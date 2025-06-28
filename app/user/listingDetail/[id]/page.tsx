@@ -8,6 +8,7 @@ import { useLocalStorage } from '@/hooks/useLocalStorage';
 import Link from 'next/link';
 import ListingSkeleton from '@/components/listingDetailSkeleton';
 import { useCart } from '@/context/cartContext';
+import { useRouter } from 'next/navigation';
 interface Props {
   params: { id?: string }; // id param is optional for create
 }
@@ -26,7 +27,7 @@ interface ListingFormData {
   category: any
 }
 export default function ListingDetail({ params }: Props) {
-  // const { checkCart } = useCartStore();
+  const router = useRouter()
   const { updateCartCount } = useCart();
   const id = params?.id;
   const [cart, setCart] = useLocalStorage<any[]>('cart', []);
@@ -104,14 +105,12 @@ export default function ListingDetail({ params }: Props) {
   const addToCart = () => {
     const countValue = Number(count)
     if (countValue <= 0) return;
-    console.log("cartcartcartcartcart", cart);
     const existingItemIndex = cart.findIndex(item => item.id === formData.id);
 
     let updatedCart = [...cart];
     if (existingItemIndex >= 0) {
       updatedCart[existingItemIndex].count += countValue;
     } else {
-      console.log("formDataformData", formData);
       updatedCart.push({
         ...formData,
         count: countValue,
@@ -120,7 +119,7 @@ export default function ListingDetail({ params }: Props) {
 
     setCart(updatedCart);
     updateCartCount(updatedCart);
-    alert('Added to cart!');
+    router.push('/user/cart')
   };
   if (loading) return <ListingSkeleton />;
   return (
@@ -209,9 +208,16 @@ export default function ListingDetail({ params }: Props) {
       <label htmlFor="quantity" className="font-medium text-black dark:text-white">Quantity:</label>
       <input
         id="quantity"
-        type="number"
+        type="text"
+         inputMode="numeric"
+  pattern="[0-9]*"
         value={count}
-        onChange={(e) => setCount(e.target.value)}
+         onChange={(e) => {
+    const value = e.target.value;
+    if (/^\d*$/.test(value)) {
+      setCount(value);
+    }
+  }}
         placeholder='0'
         className="border rounded px-2 py-1 w-20 bg-white dark:bg-gray-800 dark:text-white"
       />

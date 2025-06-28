@@ -16,13 +16,13 @@ const CartContext = createContext<CartContextType>({
 export const CartProvider = ({ children }: { children: React.ReactNode }) => {
   const [cartCount, setCartCount] = useState(0);
 
-  const updateCartCount = (updatedCart : any) => {
-    const cart = updatedCart.length > 0 ? updatedCart : JSON.parse(localStorage.getItem('cart') || '[]');
+  const updateCartCount = (updatedCart? : any) => {
+    const cart = updatedCart ? updatedCart : JSON.parse(localStorage.getItem('cart') || '[]');
     setCartCount(cart.length);
   };
 
   useEffect(() => {
-    updateCartCount([]);
+    updateCartCount();
   }, []);
 
   return (
